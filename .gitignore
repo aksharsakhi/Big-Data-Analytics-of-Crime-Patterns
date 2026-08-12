@@ -1,0 +1,6 @@
+*.class
+*.jar
+*.csv
+*.txt
+.DS_Store
+/output*
