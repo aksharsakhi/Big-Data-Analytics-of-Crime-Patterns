@@ -1,0 +1,135 @@
+\documentclass{beamer}
+\usetheme{Madrid}
+\usecolortheme{default}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{hyperref}
+
+\title[Big Data: Crime Patterns]{Big Data Analytics of Crime Patterns using Hadoop MapReduce and Apache Hive}
+\subtitle{Project Review 1}
+\author[Group Name]{Your Group Members}
+\institute[Amrita]{Amrita Vishwa Vidyapeetham}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}{Outline}
+    \tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Problem Statement \& Motivation}
+    \textbf{Problem Statement:}
+    \begin{itemize}
+        \item Analyzing massive crime datasets using traditional sequential systems is inefficient.
+        \item Need a scalable pipeline to calculate crime frequencies and perform advanced queries.
+    \end{itemize}
+    \vspace{0.5cm}
+    \textbf{Motivation:}
+    \begin{itemize}
+        \item Enables data-driven decision making for public safety.
+        \item Optimizes police resource allocation through pattern recognition.
+    \end{itemize}
+\end{frame}
+
+\section{Dataset}
+\begin{frame}{Dataset Introduction}
+    \textbf{Chicago Crimes (2001 to Present)}
+    \begin{itemize}
+        \item \textbf{Source:} Chicago Data Portal API
+        \item \textbf{Size:} 10,000 recent records extracted for processing (meets 5,000+ requirement)
+        \item \textbf{Key Attributes:}
+        \begin{itemize}
+            \item \texttt{id}, \texttt{case\_number}, \texttt{date}
+            \item \texttt{primary\_type}, \texttt{description}
+            \item \texttt{arrest}, \texttt{domestic} (Boolean flags)
+            \item \texttt{district}, \texttt{ward}, \texttt{location\_description}
+        \end{itemize}
+        \item \textbf{Preprocessing:} Cleaned embedded newlines from CSV to ensure correct MapReduce parsing.
+    \end{itemize}
+\end{frame}
+
+\section{Architecture \& HDFS}
+\begin{frame}{System Architecture \& HDFS Storage}
+    \textbf{Pipeline Overview:}
+    \begin{enumerate}
+        \item \textbf{Ingestion:} Dataset uploaded to HDFS (\texttt{/user/\$USER/bigdata\_project/crimes})
+        \item \textbf{MapReduce:} Parallel processing of crime records to aggregate frequencies.
+        \item \textbf{Hive:} Data loaded into Hive via \texttt{OpenCSVSerde} for complex SQL analytics.
+    \end{enumerate}
+    \vspace{0.5cm}
+    \textit{(Insert HDFS Screenshot Here)}
+\end{frame}
+
+\section{MapReduce Implementation}
+\begin{frame}{MapReduce: Crime Type Counting}
+    \textbf{Goal:} Calculate frequency of each primary crime type. \\
+    \vspace{0.3cm}
+    \textbf{Mapper Logic:}
+    \begin{itemize}
+        \item Parses each CSV line, handling quotes safely.
+        \item Emits \texttt{(PrimaryType, 1)}.
+    \end{itemize}
+    \vspace{0.2cm}
+    \textbf{Reducer Logic:}
+    \begin{itemize}
+        \item Iterates over values for each key.
+        \item Emits \texttt{(PrimaryType, TotalCount)}.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{MapReduce Execution}
+    \textit{(Insert MapReduce Execution \& Output Screenshots Here)}
+    \vspace{0.5cm}
+    \begin{itemize}
+        \item \textbf{Input:} Cleaned CSV on HDFS.
+        \item \textbf{Output:} Text file containing counts (e.g., \texttt{THEFT: 2150}).
+    \end{itemize}
+\end{frame}
+
+\section{Apache Hive Analytics}
+\begin{frame}{Hive Table Creation}
+    \begin{itemize}
+        \item Loaded dataset into Hive table \texttt{crimes}.
+        \item Used \texttt{OpenCSVSerde} to accurately parse quoted CSV fields.
+        \item Created a secondary \texttt{community\_areas} reference table for joins.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Hive Queries Demonstrated}
+    Successfully implemented all required SQL clauses:
+    \begin{itemize}
+        \item \textbf{SELECT \& WHERE:} Filtering narcotic arrests.
+        \item \textbf{ORDER BY:} Chronological listing of homicides.
+        \item \textbf{GROUP BY \& COUNT:} Crimes per location description.
+        \item \textbf{HAVING:} Filtering crime types $>$ 500 occurrences.
+        \item \textbf{SUM \& AVG:} Aggregating total arrests and average domestic crimes.
+        \item \textbf{MAX \& MIN:} Finding safest and most dangerous districts.
+        \item \textbf{JOIN:} Displaying actual community names instead of just codes.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Hive Execution Results}
+    \textit{(Insert Hive Query Screenshots Here)}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+    \begin{itemize}
+        \item Successfully demonstrated a complete Big Data pipeline.
+        \item \textbf{MapReduce} provided efficient, low-level data aggregation.
+        \item \textbf{Apache Hive} provided a powerful, SQL-like abstraction for business intelligence on massive datasets.
+        \item This project highlights how Big Data technologies scale to solve real-world law enforcement analytics problems.
+    \end{itemize}
+    \vspace{1cm}
+    \begin{center}
+        \textbf{Thank You!} \\
+        Questions?
+    \end{center}
+\end{frame}
+
+\end{document}
