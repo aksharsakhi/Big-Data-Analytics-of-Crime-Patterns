@@ -6,6 +6,7 @@
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{booktabs}
 
 % Custom Colors for code listing
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -57,14 +58,20 @@ The motivation for this project stems from the critical need for data-driven dec
 \section{Dataset}
 \textbf{Name:} Chicago Crimes (2001 to Present)\\
 \textbf{Source:} \url{https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-Present/ijzp-q8t2}\\
-\textbf{Description:} A comprehensive real-world dataset containing incident reports of crimes occurred in the City of Chicago. We have fetched a subset of 10,000 recent records via the official API to satisfy the project constraints. The key attributes include:
-\begin{itemize}
-    \item \texttt{id}, \texttt{case\_number}, \texttt{date}: Incident identifiers and timestamp.
-    \item \texttt{primary\_type}, \texttt{description}: The type and specific description of the crime.
-    \item \texttt{location\_description}: Where the incident took place (e.g., STREET, APARTMENT).
-    \item \texttt{arrest}, \texttt{domestic}: Boolean flags indicating if an arrest was made or if it was domestic-related.
-    \item \texttt{district}, \texttt{ward}, \texttt{community\_area}: Geographical boundaries.
-\end{itemize}
+\textbf{Description:} A comprehensive real-world dataset containing incident reports of crimes occurred in the City of Chicago. We have fetched a subset of 10,000 recent records via the official API to satisfy the project constraints. The key attributes are summarized below:
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{@{}ll@{}}
+        \toprule
+        \textbf{Attribute Category} & \textbf{Fields} \\ \midrule
+        Identifiers & \texttt{id}, \texttt{case\_number}, \texttt{date} \\
+        Crime Typology & \texttt{primary\_type}, \texttt{description} \\
+        Location Data & \texttt{location\_description}, \texttt{district}, \texttt{ward}, \texttt{community\_area} \\
+        Boolean Flags & \texttt{arrest}, \texttt{domestic} \\ \bottomrule
+    \end{tabular}
+    \caption{Dataset Attributes Overview}
+\end{table}
 
 \section{Architecture}
 The project follows a standard Big Data processing pipeline:
@@ -179,7 +186,27 @@ The Reducer receives the intermediate key (\texttt{primary\_type}) and an iterab
 
 \newpage
 \section{Hive Analysis}
-The following 10 meaningful queries were executed in Apache Hive on the dataset to extract business intelligence.
+The following 10 meaningful queries were executed in Apache Hive on the dataset to extract business intelligence. Table \ref{tab:hive_reqs} maps the rubric requirements to the implemented queries.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{@{}ll@{}}
+        \toprule
+        \textbf{Requirement} & \textbf{Query Implementation Focus} \\ \midrule
+        SELECT & Retrieving basic incident records \\
+        WHERE & Filtering specific crime types (Narcotics) and arrest statuses \\
+        ORDER BY & Sorting homicides chronologically \\
+        GROUP BY & Aggregating incidents by location description \\
+        HAVING & Filtering for dominant crime categories (count $>$ 500) \\
+        COUNT & Counting occurrences per category or location \\
+        SUM & Calculating absolute total arrests per district \\
+        AVG & Determining average domestic crime rates per beat \\
+        MAX \& MIN & Pinpointing districts with highest and lowest crime volumes \\
+        JOIN & Merging crimes with community area names for readability \\ \bottomrule
+    \end{tabular}
+    \caption{Mapping of Hive SQL Requirements to Queries}
+    \label{tab:hive_reqs}
+\end{table}
 
 \subsection{Hive Analysis Questions and Queries}
 
