@@ -4,6 +4,7 @@
 \usepackage{tikz}
 \usepackage{xcolor}
 \usepackage{listings}
+\usepackage{booktabs}
 
 % Define custom elegant colors
 \definecolor{AmritaMaroon}{HTML}{800000} % Classic Maroon
@@ -155,14 +156,18 @@
     \begin{itemize}
         \item \textbf{Scope:} Extracts real-world incident reports from the Chicago Data Portal.
         \item \textbf{Size:} 10,000 recent records processed for this demonstration.
-        \item \textbf{Key Features:}
-        \begin{itemize}
-            \item \textcolor{NavyBlue}{Identifiers:} \texttt{id}, \texttt{case\_number}, \texttt{date}
-            \item \textcolor{NavyBlue}{Categories:} \texttt{primary\_type}, \texttt{description}
-            \item \textcolor{NavyBlue}{Location:} \texttt{district}, \texttt{ward}, \texttt{community\_area}
-            \item \textcolor{NavyBlue}{Flags:} \texttt{arrest}, \texttt{domestic}
-        \end{itemize}
     \end{itemize}
+    \vspace{0.3cm}
+    \begin{center}
+        \begin{tabular}{@{}ll@{}}
+            \toprule
+            \textbf{\textcolor{NavyBlue}{Attribute Type}} & \textbf{\textcolor{NavyBlue}{Fields}} \\ \midrule
+            Identifiers & \texttt{id}, \texttt{case\_number}, \texttt{date} \\
+            Categories & \texttt{primary\_type}, \texttt{description} \\
+            Location & \texttt{district}, \texttt{ward}, \texttt{community\_area} \\
+            Flags & \texttt{arrest}, \texttt{domestic} \\ \bottomrule
+        \end{tabular}
+    \end{center}
 \end{frame}
 
 % Slide 7: Preprocessing & Storage
@@ -248,10 +253,14 @@ public void reduce(Text key, Iterable<IntWritable> values, Context context) {
     \vspace{0.3cm}
     \textbf{Sample Output (\texttt{part-r-00000}):}
     \begin{center}
-        \texttt{THEFT \hspace{1cm} 2150} \\
-        \texttt{BATTERY \hspace{1cm} 1857} \\
-        \texttt{CRIMINAL DAMAGE \hspace{0.2cm} 1207} \\
-        \texttt{ASSAULT \hspace{1cm} 905} \\
+        \begin{tabular}{@{}lr@{}}
+            \toprule
+            \textbf{\textcolor{NavyBlue}{Crime Type}} & \textbf{\textcolor{NavyBlue}{Frequency}} \\ \midrule
+            THEFT & 2,150 \\
+            BATTERY & 1,857 \\
+            CRIMINAL DAMAGE & 1,207 \\
+            ASSAULT & 905 \\ \bottomrule
+        \end{tabular}
     \end{center}
 \end{frame}
 
