@@ -1,25 +1,24 @@
 \documentclass[aspectratio=169]{beamer}
 
-% Custom Futuristic Dark Theme
+% Professional, Minimalist, Premium Corporate Theme
 \usepackage{tikz}
 \usepackage{xcolor}
 \usepackage{listings}
 
-% Define custom colors
-\definecolor{DeepBackground}{HTML}{0B0E14}
-\definecolor{NeonCyan}{HTML}{00F0FF}
-\definecolor{NeonPurple}{HTML}{7000FF}
-\definecolor{OffWhite}{HTML}{E2E8F0}
-\definecolor{GrayAccent}{HTML}{1F2937}
+% Define custom elegant colors
+\definecolor{AmritaMaroon}{HTML}{800000} % Classic Maroon
+\definecolor{NavyBlue}{HTML}{002855}
+\definecolor{LightGray}{HTML}{F3F4F6}
+\definecolor{DarkGray}{HTML}{374151}
 
-% Code Listing Style
+% Code Listing Style (Clean and readable)
 \lstdefinestyle{mystyle}{
-    backgroundcolor=\color{GrayAccent},   
-    commentstyle=\color{NeonCyan},
-    keywordstyle=\color{NeonPurple},
-    numberstyle=\tiny\color{OffWhite},
-    stringstyle=\color{NeonCyan},
-    basicstyle=\ttfamily\footnotesize\color{OffWhite},
+    backgroundcolor=\color{LightGray},   
+    commentstyle=\color{AmritaMaroon},
+    keywordstyle=\color{NavyBlue}\bfseries,
+    numberstyle=\tiny\color{DarkGray},
+    stringstyle=\color{AmritaMaroon},
+    basicstyle=\ttfamily\footnotesize\color{DarkGray},
     breaklines=true,                 
     captionpos=b,                    
     keepspaces=true,                 
@@ -33,36 +32,45 @@
 % Beamer Theme Settings
 \mode<presentation>{
     \usetheme{default}
-    \setbeamercolor{background canvas}{bg=DeepBackground}
-    \setbeamercolor{normal text}{fg=OffWhite}
-    \setbeamercolor{title}{fg=NeonCyan}
-    \setbeamercolor{subtitle}{fg=OffWhite}
-    \setbeamercolor{frametitle}{fg=NeonCyan, bg=DeepBackground}
-    \setbeamercolor{structure}{fg=NeonCyan}
-    \setbeamercolor{itemize item}{fg=NeonPurple}
-    \setbeamercolor{itemize subitem}{fg=NeonCyan}
-    \setbeamercolor{itemize subsubitem}{fg=OffWhite}
+    \setbeamercolor{background canvas}{bg=white}
+    \setbeamercolor{normal text}{fg=DarkGray}
+    \setbeamercolor{title}{fg=NavyBlue}
+    \setbeamercolor{subtitle}{fg=AmritaMaroon}
+    \setbeamercolor{frametitle}{fg=NavyBlue, bg=white}
+    \setbeamercolor{structure}{fg=NavyBlue}
+    \setbeamercolor{itemize item}{fg=AmritaMaroon}
+    \setbeamercolor{itemize subitem}{fg=NavyBlue}
     
     % Fonts
     \setbeamerfont{title}{size=\huge, series=\bfseries}
     \setbeamerfont{subtitle}{size=\Large, series=\bfseries}
     \setbeamerfont{frametitle}{size=\LARGE, series=\bfseries}
+    \setbeamerfont{author}{size=\large}
     
     \setbeamertemplate{navigation symbols}{}
     
-    % Custom Frame Title with a neon line
+    % Custom Frame Title with an elegant underline
     \setbeamertemplate{frametitle}{
-        \vspace{0.5cm}
+        \vspace{0.6cm}
         \usebeamerfont{frametitle}\insertframetitle
         \vspace{0.1cm}
         \begin{tikzpicture}
-            \draw[NeonCyan, thick] (0,0) -- (\textwidth, 0);
+            \draw[AmritaMaroon, thick] (0,0) -- (\textwidth, 0);
         \end{tikzpicture}
+    }
+    
+    % Footer with slide numbers
+    \setbeamertemplate{footline}{
+        \vspace{0.2cm}
+        \hspace{0.5cm}
+        \textcolor{gray}{\insertshorttitle} \hfill \textcolor{gray}{\insertframenumber}
+        \hspace{0.5cm}
+        \vspace{0.2cm}
     }
 }
 
-\title{Big Data Analytics of Crime Patterns}
-\subtitle{\textcolor{NeonPurple}{using Hadoop MapReduce and Apache Hive}}
+\title[Big Data: Crime Patterns]{Big Data Analytics of Crime Patterns}
+\subtitle{using Hadoop MapReduce and Apache Hive}
 \author[Group Name]{Your Group Members}
 \institute[Amrita]{Amrita Vishwa Vidyapeetham}
 \date{\today}
@@ -72,21 +80,21 @@
 % Slide 1: Title Page
 \begin{frame}
     \begin{tikzpicture}[remember picture,overlay]
-        \fill[DeepBackground] (current page.south west) rectangle (current page.north east);
-        \draw[NeonCyan, thick, opacity=0.3] (current page.north west) -- (current page.south east);
-        \draw[NeonPurple, thick, opacity=0.3] (current page.south west) -- (current page.north east);
-        \fill[NeonCyan] (current page.south west) circle (1cm);
-        \fill[NeonPurple] (current page.north east) circle (1.5cm);
+        % Clean header accent
+        \fill[NavyBlue] (current page.north west) rectangle ([yshift=-0.5cm]current page.north east);
+        % Clean footer accent
+        \fill[AmritaMaroon] (current page.south west) rectangle ([yshift=0.5cm]current page.south east);
     \end{tikzpicture}
-    \vspace{2cm}
+    
+    \vspace{1cm}
     \begin{center}
-        \usebeamerfont{title}\textcolor{NeonCyan}{\inserttitle}\par
+        \usebeamerfont{title}\textcolor{NavyBlue}{\inserttitle}\par
         \vspace{0.5cm}
         \usebeamerfont{subtitle}\insertsubtitle\par
         \vspace{1cm}
-        \textit{\insertauthor} \\
+        \textit{\color{DarkGray}\insertauthor} \\
         \vspace{0.5cm}
-        \insertinstitute
+        \color{DarkGray}\insertinstitute
     \end{center}
 \end{frame}
 
@@ -110,7 +118,7 @@
         \item The rise of Big Data provides an unprecedented opportunity to analyze public safety records.
         \item City crime records encompass millions of rows of incidents, locations, dates, and types.
         \item Processing this data efficiently requires distributed frameworks.
-        \item We leverage \textbf{\textcolor{NeonCyan}{Hadoop MapReduce}} for raw parallel processing and \textbf{\textcolor{NeonPurple}{Apache Hive}} for SQL-based analytical querying.
+        \item We leverage \textbf{\textcolor{NavyBlue}{Hadoop MapReduce}} for raw parallel processing and \textbf{\textcolor{AmritaMaroon}{Apache Hive}} for SQL-based analytical querying.
     \end{itemize}
 \end{frame}
 
@@ -129,7 +137,7 @@
 % Slide 5: Problem Statement
 \begin{frame}{Problem Statement}
     \begin{center}
-        \Large \textit{"To design and implement a scalable Big Data pipeline that can ingest, process, and extract actionable intelligence from massive real-world crime datasets."}
+        \Large \textit{\textcolor{NavyBlue}{"To design and implement a scalable Big Data pipeline that can ingest, process, and extract actionable intelligence from massive real-world crime datasets."}}
     \end{center}
     \vspace{0.5cm}
     \textbf{Objectives:}
@@ -149,10 +157,10 @@
         \item \textbf{Size:} 10,000 recent records processed for this demonstration.
         \item \textbf{Key Features:}
         \begin{itemize}
-            \item \textcolor{NeonCyan}{Identifiers:} \texttt{id}, \texttt{case\_number}, \texttt{date}
-            \item \textcolor{NeonCyan}{Categories:} \texttt{primary\_type}, \texttt{description}
-            \item \textcolor{NeonCyan}{Location:} \texttt{district}, \texttt{ward}, \texttt{community\_area}
-            \item \textcolor{NeonCyan}{Flags:} \texttt{arrest}, \texttt{domestic}
+            \item \textcolor{NavyBlue}{Identifiers:} \texttt{id}, \texttt{case\_number}, \texttt{date}
+            \item \textcolor{NavyBlue}{Categories:} \texttt{primary\_type}, \texttt{description}
+            \item \textcolor{NavyBlue}{Location:} \texttt{district}, \texttt{ward}, \texttt{community\_area}
+            \item \textcolor{NavyBlue}{Flags:} \texttt{arrest}, \texttt{domestic}
         \end{itemize}
     \end{itemize}
 \end{frame}
@@ -176,16 +184,16 @@
 \begin{frame}{System Architecture}
     \begin{center}
         \begin{tikzpicture}
-            % A simple flowchart for the architecture
-            \node[draw=NeonCyan, thick, fill=GrayAccent, text=OffWhite, minimum width=3cm, minimum height=1cm, rounded corners] (A) at (0,3) {Raw CSV Data};
-            \node[draw=NeonPurple, thick, fill=GrayAccent, text=OffWhite, minimum width=3cm, minimum height=1cm, rounded corners] (B) at (5,3) {HDFS Storage};
-            \node[draw=NeonCyan, thick, fill=GrayAccent, text=OffWhite, minimum width=3cm, minimum height=1cm, rounded corners] (C) at (10,3) {Hadoop MapReduce};
-            \node[draw=NeonPurple, thick, fill=GrayAccent, text=OffWhite, minimum width=3cm, minimum height=1cm, rounded corners] (D) at (7.5,1) {Apache Hive};
+            % Professional Flowchart
+            \node[draw=NavyBlue, thick, fill=LightGray, text=NavyBlue, minimum width=3cm, minimum height=1cm, rounded corners] (A) at (0,3) {\textbf{Raw CSV Data}};
+            \node[draw=AmritaMaroon, thick, fill=LightGray, text=AmritaMaroon, minimum width=3cm, minimum height=1cm, rounded corners] (B) at (5,3) {\textbf{HDFS Storage}};
+            \node[draw=NavyBlue, thick, fill=LightGray, text=NavyBlue, minimum width=3cm, minimum height=1cm, rounded corners] (C) at (10,3) {\textbf{Hadoop MapReduce}};
+            \node[draw=AmritaMaroon, thick, fill=LightGray, text=AmritaMaroon, minimum width=3cm, minimum height=1cm, rounded corners] (D) at (7.5,1) {\textbf{Apache Hive}};
             
-            \draw[->, NeonCyan, thick] (A) -- (B);
-            \draw[->, NeonCyan, thick] (B) -- (C);
-            \draw[->, NeonPurple, thick] (B) -- (D);
-            \draw[->, NeonPurple, thick, dashed] (C) -- (D);
+            \draw[->, NavyBlue, very thick] (A) -- (B);
+            \draw[->, NavyBlue, very thick] (B) -- (C);
+            \draw[->, AmritaMaroon, very thick] (B) -- (D);
+            \draw[->, AmritaMaroon, very thick, dashed] (C) -- (D);
         \end{tikzpicture}
     \end{center}
     \vspace{0.5cm}
@@ -259,21 +267,21 @@ public void reduce(Text key, Iterable<IntWritable> values, Context context) {
 % Slide 13: Hive Queries 1
 \begin{frame}{Hive Analytics: Basic Queries}
     \begin{itemize}
-        \item \textbf{\textcolor{NeonCyan}{SELECT \& LIMIT:}} Retrieved incident IDs and descriptions.
-        \item \textbf{\textcolor{NeonCyan}{WHERE clause:}} Filtered incidents resulting specifically in a narcotics arrest.
-        \item \textbf{\textcolor{NeonCyan}{ORDER BY:}} Sorted severe cases like homicides by recency.
-        \item \textbf{\textcolor{NeonCyan}{GROUP BY \& COUNT:}} Identified which locations (e.g., STREET, APARTMENT) experience the highest crime volumes.
+        \item \textbf{\textcolor{NavyBlue}{SELECT \& LIMIT:}} Retrieved incident IDs and descriptions.
+        \item \textbf{\textcolor{NavyBlue}{WHERE clause:}} Filtered incidents resulting specifically in a narcotics arrest.
+        \item \textbf{\textcolor{NavyBlue}{ORDER BY:}} Sorted severe cases like homicides by recency.
+        \item \textbf{\textcolor{NavyBlue}{GROUP BY \& COUNT:}} Identified which locations (e.g., STREET, APARTMENT) experience the highest crime volumes.
     \end{itemize}
 \end{frame}
 
 % Slide 14: Hive Queries 2
 \begin{frame}{Hive Analytics: Advanced Aggregations}
     \begin{itemize}
-        \item \textbf{\textcolor{NeonCyan}{HAVING clause:}} Extracted major crime categories by filtering for counts $>$ 500.
-        \item \textbf{\textcolor{NeonCyan}{SUM:}} Calculated the absolute total number of arrests made within each police district.
-        \item \textbf{\textcolor{NeonCyan}{AVG:}} Analyzed the average rate of domestic-related crimes across different beats.
-        \item \textbf{\textcolor{NeonCyan}{MAX \& MIN:}} Automatically pinpointed the highest and lowest crime districts.
-        \item \textbf{\textcolor{NeonCyan}{JOIN:}} Combined the raw \texttt{crimes} data with \texttt{community\_areas} to print human-readable neighborhood names.
+        \item \textbf{\textcolor{AmritaMaroon}{HAVING clause:}} Extracted major crime categories by filtering for counts $>$ 500.
+        \item \textbf{\textcolor{AmritaMaroon}{SUM:}} Calculated the absolute total number of arrests made within each police district.
+        \item \textbf{\textcolor{AmritaMaroon}{AVG:}} Analyzed the average rate of domestic-related crimes across different beats.
+        \item \textbf{\textcolor{AmritaMaroon}{MAX \& MIN:}} Automatically pinpointed the highest and lowest crime districts.
+        \item \textbf{\textcolor{AmritaMaroon}{JOIN:}} Combined the raw \texttt{crimes} data with \texttt{community\_areas} to print human-readable neighborhood names.
     \end{itemize}
 \end{frame}
 
@@ -292,8 +300,8 @@ public void reduce(Text key, Iterable<IntWritable> values, Context context) {
 \begin{frame}{Conclusion}
     \begin{itemize}
         \item Successfully ingested and analyzed a large-scale real-world dataset.
-        \item \textbf{\textcolor{NeonCyan}{MapReduce}} proved highly efficient for unstructured low-level data processing and aggregations.
-        \item \textbf{\textcolor{NeonPurple}{Apache Hive}} demonstrated immense power for executing complex, relational-style queries on distributed files.
+        \item \textbf{\textcolor{NavyBlue}{MapReduce}} proved highly efficient for unstructured low-level data processing and aggregations.
+        \item \textbf{\textcolor{AmritaMaroon}{Apache Hive}} demonstrated immense power for executing complex, relational-style queries on distributed files.
         \item This pipeline can scale to millions of records, providing an essential backbone for civic analytics.
     \end{itemize}
 \end{frame}
@@ -301,17 +309,17 @@ public void reduce(Text key, Iterable<IntWritable> values, Context context) {
 % Slide 17: Q&A
 \begin{frame}
     \begin{tikzpicture}[remember picture,overlay]
-        \fill[DeepBackground] (current page.south west) rectangle (current page.north east);
-        \draw[NeonCyan, thick] (current page.center) circle (3cm);
-        \draw[NeonPurple, thick] (current page.center) circle (3.2cm);
+        \fill[NavyBlue] (current page.north west) rectangle ([yshift=-0.5cm]current page.north east);
+        \fill[AmritaMaroon] (current page.south west) rectangle ([yshift=0.5cm]current page.south east);
     \end{tikzpicture}
+    
     \begin{center}
         \vspace{1.5cm}
-        \usebeamerfont{title}\textcolor{NeonCyan}{Q \& A}\par
+        \usebeamerfont{title}\textcolor{NavyBlue}{Q \& A}\par
         \vspace{0.5cm}
-        Thank you for listening.\\
+        \textcolor{DarkGray}{Thank you for your time.}\\
         \vspace{1cm}
-        \textbf{\textcolor{NeonPurple}{Any Questions?}}
+        \textbf{\textcolor{AmritaMaroon}{Any Questions?}}
     \end{center}
 \end{frame}
 
