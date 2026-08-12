@@ -23,6 +23,7 @@ This project demonstrates a comprehensive Big Data pipeline to analyze and proce
 * `dataset/`: Contains the initial and cleaned CSV files (tracked out via `.gitignore` to prevent large uploads).
 * `src/`: Contains the Java MapReduce source code (`CrimeTypeCount.java`).
 * `presentation/`: Contains the LaTeX source code and compiled PDFs for both the presentation slides and the final project report.
+* `VM_GUIDE.md`: A step-by-step tutorial on how to execute the project on a VM and capture screenshots for grading.
 * `download_dataset.sh`: Shell script to fetch the Chicago Crimes data.
 * `preprocess.py`: Python script to clean the raw data.
 * `setup_hdfs.sh`: Script to initialize HDFS directories and upload the cleaned data.
@@ -31,6 +32,9 @@ This project demonstrates a comprehensive Big Data pipeline to analyze and proce
 
 ## Getting Started
 
+> **🚨 GRADING & REVIEW:** If you are running this for your university review, please follow the exact step-by-step instructions in the [VM Execution Guide](VM_GUIDE.md) to ensure you capture all required screenshots correctly!
+
+### Quick Start
 1. Download the dataset: `./download_dataset.sh`
 2. Clean the dataset: `python3 preprocess.py`
 3. Upload to HDFS: `./setup_hdfs.sh`
