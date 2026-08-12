@@ -4,3 +4,10 @@
 *.txt
 .DS_Store
 /output*
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
