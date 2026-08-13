@@ -1,6 +1,7 @@
 *.class
 *.jar
 *.csv
+!dataset/community_areas.csv
 *.txt
 .DS_Store
 /output*
