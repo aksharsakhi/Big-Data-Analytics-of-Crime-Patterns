@@ -309,13 +309,14 @@ public void reduce(Text key, Iterable<IntWritable> values, Context context) {
 \end{frame}
 
 % Slide 15: Interpretation
-\begin{frame}{Results \& Interpretation}
-    \textbf{Key Insights Derived:}
-    \vspace{0.3cm}
+\begin{frame}{Results \& Quantitative Interpretation}
+    \textbf{Empirical Data Insights:}
+    \vspace{0.2cm}
     \begin{itemize}
-        \item \textbf{Property Crimes Dominant:} Theft and Battery make up the vast majority of incidents.
-        \item \textbf{Location Vulnerabilities:} Streets and sidewalks are the most common locations for incidents.
-        \item \textbf{Enforcement Efficacy:} Analyzing arrests via Hive shows significant variations in arrest rates across different crime types and districts.
+        \item \textbf{Top Crime Categories:} \texttt{BATTERY} (1,857 cases), \texttt{CRIMINAL DAMAGE} (1,207 cases), \texttt{ASSAULT} (905 cases), and \texttt{MOTOR VEHICLE THEFT} (895 cases).
+        \item \textbf{Enforcement Efficacy:} Narcotics cases show a 100\% arrest rate flag, whereas theft offenses show lower arrest ratios.
+        \item \textbf{Spatial Hotspots:} Streets and Sidewalks represent the primary spatial vulnerability zones for property crimes.
+        \item \textbf{Geographical Variations:} High crime density concentrated in District 11.
     \end{itemize}
 \end{frame}
 
