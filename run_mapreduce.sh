@@ -7,7 +7,7 @@ rm -rf classes
 mkdir classes
 
 echo "Compiling CrimeTypeCount.java..."
-javac -classpath `hadoop classpath` -d classes src/CrimeTypeCount.java
+javac -source 1.8 -target 1.8 -classpath `hadoop classpath` -d classes src/CrimeTypeCount.java
 
 if [ $? -ne 0 ]; then
     echo "Compilation failed."
