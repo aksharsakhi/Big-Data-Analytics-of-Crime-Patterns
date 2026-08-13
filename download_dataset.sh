@@ -11,8 +11,15 @@ echo "Creating dataset directory..."
 mkdir -p ${OUTPUT_DIR}
 
 echo "Downloading dataset from Chicago Data Portal..."
-# Using curl to download the dataset
-curl -s -L "${DATASET_URL}" -o "${OUTPUT_FILE}"
+# Using curl or wget to download the dataset
+if command -v curl &> /dev/null; then
+    curl -s -L "${DATASET_URL}" -o "${OUTPUT_FILE}"
+elif command -v wget &> /dev/null; then
+    wget -q -O "${OUTPUT_FILE}" "${DATASET_URL}"
+else
+    echo "Error: Neither curl nor wget is installed."
+    exit 1
+fi
 
 if [ $? -eq 0 ]; then
     echo "Download completed successfully."
