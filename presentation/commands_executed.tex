@@ -1,0 +1,228 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+
+% Custom Colors for code listing
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\title{\textbf{23CSE352: Big Data Analytics}\\ \Large Chronological Execution Log \\ \vspace{0.5cm} \Large \textbf{Commands Executed From Starting}}
+\author{\textbf{Team Members:}\\ Sheela Akshar Sakhi \\ Nishanth S Gowda}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Overview}
+This document provides a complete, step-by-step chronological log of every single terminal command executed to build, run, evaluate, and generate deliverables for the Big Data Analytics of Crime Patterns project.
+
+\section{Phase 1: Project Repository Setup \& Git Initialization}
+Ran on Host Machine (Mac Terminal):
+\begin{lstlisting}[language=bash]
+# Navigate to workspace directory
+cd /Users/aksharsakhi/Documents/Files/VScode/Amrita/Big_Data
+
+# Create and rename project directory
+mv BigDataProject Big-Data-Analytics-of-Crime-Patterns
+cd Big-Data-Analytics-of-Crime-Patterns
+
+# Initialize Git repository and add remote
+git init
+git remote add origin https://github.com/aksharsakhi/Big-Data-Analytics-of-Crime-Patterns.git
+\end{lstlisting}
+
+\section{Phase 2: Virtual Machine Environment Setup}
+Ran on Virtual Machine Terminal (\texttt{hadoop@aksharsakhi-QEMU-Virtual-Machine}):
+\begin{lstlisting}[language=bash]
+# Clone the repository onto the VM
+git clone https://github.com/aksharsakhi/Big-Data-Analytics-of-Crime-Patterns.git
+
+# Enter project folder
+cd Big-Data-Analytics-of-Crime-Patterns
+
+# Grant execution permissions to shell scripts
+chmod +x *.sh
+\end{lstlisting}
+
+\section{Phase 3: Hadoop \& YARN Daemon Startup}
+Ran on VM Terminal to manually start Hadoop services (without using \texttt{.sh} extensions):
+\begin{lstlisting}[language=bash]
+# Start HDFS Storage Daemons
+hdfs --daemon start namenode
+hdfs --daemon start datanode
+hdfs --daemon start secondarynamenode
+
+# Start YARN Resource Manager & Node Manager Daemons
+yarn --daemon start resourcemanager
+yarn --daemon start nodemanager
+
+# Verify running Java daemons
+jps
+\end{lstlisting}
+
+\section{Phase 4: Data Download \& Preprocessing}
+Ran on VM Terminal:
+\begin{lstlisting}[language=bash]
+# Pull latest repository updates
+git pull
+
+# Download Chicago Crimes dataset (10,000 records via Socrata API)
+mkdir -p dataset
+wget -q -O dataset/chicago_crimes_10k.csv "https://data.cityofchicago.org/resource/ijzp-q8t2.csv?\$limit=10000"
+
+# Clean multi-line string newlines using Python
+python3 preprocess.py
+\end{lstlisting}
+
+\section{Phase 5: HDFS Storage Upload}
+Ran on VM Terminal:
+\begin{lstlisting}[language=bash]
+# Create HDFS destination directory
+hdfs dfs -mkdir -p /user/hadoop/bigdata_project/crimes
+
+# Upload cleaned dataset to HDFS datalake
+hdfs dfs -put -f dataset/chicago_crimes_clean.csv /user/hadoop/bigdata_project/crimes/
+
+# Verify HDFS upload (Screenshot: hdfs_screenshot.png)
+hdfs dfs -ls /user/hadoop/bigdata_project/crimes/
+\end{lstlisting}
+
+\section{Phase 6: MapReduce Compilation \& YARN Execution}
+Ran on VM Terminal:
+\begin{lstlisting}[language=bash]
+# Clean previous build artifacts
+rm -rf classes && mkdir classes
+
+# Compile Java MapReduce program targeting Java 8 runtime
+javac -source 1.8 -target 1.8 -classpath `hadoop classpath` -d classes src/CrimeTypeCount.java
+
+# Package compiled class files into JAR executable
+jar -cvf crimecount.jar -C classes/ .
+
+# Remove stale HDFS output directory if present
+hdfs dfs -rm -r -f /user/hadoop/bigdata_project/crime_output
+
+# Execute MapReduce job on Hadoop YARN Cluster (Screenshot: mr_execution.png)
+hadoop jar crimecount.jar bigdata.CrimeTypeCount /user/hadoop/bigdata_project/crimes /user/hadoop/bigdata_project/crime_output
+
+# Display MapReduce frequency counts output (Screenshot: mr_output.png)
+hdfs dfs -cat /user/hadoop/bigdata_project/crime_output/part-r-00000 | head -n 20
+\end{lstlisting}
+
+\section{Phase 7: Apache Hive Metastore Reset \& SQL Analytics}
+Ran on VM Terminal:
+\begin{lstlisting}[language=bash]
+# Reset Derby metastore to prevent locks
+rm -rf metastore_db
+
+# Initialize Derby Metastore database schema
+schematool -dbType derby -initSchema
+
+# Batch execution of all 10 SQL queries
+hive -f crime_analysis.hql > hive_output.txt
+
+# Interactive Hive execution
+hive
+\end{lstlisting}
+
+Interactive Hive Queries executed inside \texttt{hive>} shell:
+\begin{lstlisting}[language=SQL]
+USE default;
+
+-- Query 1: SELECT
+SELECT id, primary_type, description, crime_date FROM crimes LIMIT 10;
+
+-- Query 2: WHERE
+SELECT id, primary_type, description, arrest FROM crimes WHERE primary_type = 'NARCOTICS' AND arrest = 'true' LIMIT 10;
+
+-- Query 3: ORDER BY
+SELECT case_number, primary_type, crime_date FROM crimes WHERE primary_type = 'HOMICIDE' ORDER BY crime_date DESC LIMIT 10;
+
+-- Query 4: GROUP BY & COUNT
+SELECT location_description, COUNT(*) AS crime_count FROM crimes GROUP BY location_description ORDER BY crime_count DESC LIMIT 15;
+
+-- Query 5: HAVING
+SELECT primary_type, COUNT(*) as total FROM crimes GROUP BY primary_type HAVING COUNT(*) > 500 ORDER BY total DESC;
+
+-- Query 6: SUM
+SELECT district, SUM(CASE WHEN arrest = 'true' THEN 1 ELSE 0 END) AS total_arrests FROM crimes WHERE district IS NOT NULL AND district != '' GROUP BY district ORDER BY total_arrests DESC LIMIT 10;
+
+-- Query 7: AVG
+SELECT beat, AVG(CASE WHEN domestic = 'true' THEN 1.0 ELSE 0.0 END) AS avg_domestic FROM crimes WHERE beat IS NOT NULL AND beat != '' GROUP BY beat ORDER BY avg_domestic DESC LIMIT 10;
+
+-- Query 8: MAX
+SELECT district, COUNT(*) AS district_total FROM crimes WHERE district IS NOT NULL AND district != '' GROUP BY district ORDER BY district_total DESC LIMIT 1;
+
+-- Query 9: MIN
+SELECT district, COUNT(*) AS district_total FROM crimes WHERE district IS NOT NULL AND district != '' GROUP BY district ORDER BY district_total ASC LIMIT 1;
+
+-- Query 10: JOIN
+SELECT c.case_number, c.primary_type, a.area_name FROM crimes c JOIN community_areas a ON (c.community_area = a.area_code) LIMIT 15;
+
+exit;
+\end{lstlisting}
+
+\section{Phase 8: Query Output Extraction for Screenshots}
+Ran on VM Terminal:
+\begin{lstlisting}[language=bash]
+# Query 1 to Q3 Output
+head -n 35 hive_output.txt
+
+# Query 4 to Q7 Output
+sed -n '36,75p' hive_output.txt
+
+# Query 8 to Q10 Output
+tail -n 35 hive_output.txt
+\end{lstlisting}
+
+\section{Phase 9: LaTeX Compilation \& Git Operations}
+Ran on Host System (Mac Terminal):
+\begin{lstlisting}[language=bash]
+# Change to presentation directory
+cd presentation
+
+# Compile LaTeX documents
+pdflatex -interaction=nonstopmode report.tex
+pdflatex -interaction=nonstopmode presentation.tex
+pdflatex -interaction=nonstopmode commands_executed.tex
+
+# Clean up auxiliary build files
+find . -type f \( -name "*.aux" -o -name "*.log" -o -name "*.nav" -o -name "*.out" -o -name "*.snm" -o -name "*.toc" -o -name "*.vrb" \) -delete
+
+# Commit and push to GitHub
+git add .
+git commit -m "Add commands_executed.pdf generated from LaTeX"
+git push
+\end{lstlisting}
+
+\end{document}
