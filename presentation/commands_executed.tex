@@ -131,7 +131,7 @@ hadoop jar crimecount.jar bigdata.CrimeTypeCount /user/hadoop/bigdata_project/cr
 hdfs dfs -cat /user/hadoop/bigdata_project/crime_output/part-r-00000 | head -n 20
 \end{lstlisting}
 
-\section{Phase 7: Apache Hive Derby Metastore Setup \& Interactive Queries}
+\section{Phase 7: Apache Hive Setup \& Individual Queries (Copy-Paste Ready)}
 Executed directly on VM Terminal:
 \begin{lstlisting}[language=bash]
 # Reset metastore database folder
@@ -144,12 +144,15 @@ schematool -dbType derby -initSchema
 hive
 \end{lstlisting}
 
-Executed manually line-by-line inside the interactive \texttt{hive>} prompt:
-\begin{lstlisting}[language=SQL]
--- Select default database
-USE default;
+\subsection{Hive Database DDL \& Table Setup Commands}
 
--- Create OpenCSVSerde Table for Crimes Dataset
+\textbf{Set Default Database:}
+\begin{lstlisting}[language=SQL]
+USE default;
+\end{lstlisting}
+
+\textbf{Create crimes Table:}
+\begin{lstlisting}[language=SQL]
 CREATE TABLE crimes (
     id STRING, case_number STRING, crime_date STRING, block STRING,
     iucr STRING, primary_type STRING, description STRING,
@@ -162,48 +165,78 @@ ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
 WITH SERDEPROPERTIES ("separatorChar" = ",", "quoteChar" = "\"")
 STORED AS TEXTFILE
 TBLPROPERTIES("skip.header.line.count"="1");
+\end{lstlisting}
 
--- Load Cleaned Dataset into Hive Table
+\textbf{Load Data into crimes Table:}
+\begin{lstlisting}[language=SQL]
 LOAD DATA LOCAL INPATH 'dataset/chicago_crimes_clean.csv' INTO TABLE crimes;
+\end{lstlisting}
 
--- Create Reference Table for Community Area Names
+\textbf{Create community\_areas Reference Table:}
+\begin{lstlisting}[language=SQL]
 CREATE TABLE community_areas (area_code STRING, area_name STRING)
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE;
+\end{lstlisting}
 
--- Load Community Area Reference Data
+\textbf{Load Data into community\_areas Table:}
+\begin{lstlisting}[language=SQL]
 LOAD DATA LOCAL INPATH 'dataset/community_areas.csv' INTO TABLE community_areas;
+\end{lstlisting}
 
--- Query 1: SELECT (Screenshot: hiveq1.png)
+\subsection{Individual Analytical Queries (Paste into hive> prompt)}
+
+\textbf{Query 1: SELECT}
+\begin{lstlisting}[language=SQL]
 SELECT id, primary_type, description, crime_date FROM crimes LIMIT 10;
+\end{lstlisting}
 
--- Query 2: WHERE (Screenshot: hiveq2.png)
+\textbf{Query 2: WHERE}
+\begin{lstlisting}[language=SQL]
 SELECT id, primary_type, description, arrest FROM crimes WHERE primary_type = 'NARCOTICS' AND arrest = 'true' LIMIT 10;
+\end{lstlisting}
 
--- Query 3: ORDER BY (Screenshot: hive1.png)
+\textbf{Query 3: ORDER BY}
+\begin{lstlisting}[language=SQL]
 SELECT case_number, primary_type, crime_date FROM crimes WHERE primary_type = 'HOMICIDE' ORDER BY crime_date DESC LIMIT 10;
+\end{lstlisting}
 
--- Query 4: GROUP BY & COUNT (Screenshot: hiveq4.png)
+\textbf{Query 4: GROUP BY \& COUNT}
+\begin{lstlisting}[language=SQL]
 SELECT location_description, COUNT(*) AS crime_count FROM crimes GROUP BY location_description ORDER BY crime_count DESC LIMIT 15;
+\end{lstlisting}
 
--- Query 5: HAVING (Screenshot: hiveq5.png)
+\textbf{Query 5: HAVING}
+\begin{lstlisting}[language=SQL]
 SELECT primary_type, COUNT(*) as total FROM crimes GROUP BY primary_type HAVING COUNT(*) > 500 ORDER BY total DESC;
+\end{lstlisting}
 
--- Query 6: SUM (Screenshot: hiveq6.png)
+\textbf{Query 6: SUM}
+\begin{lstlisting}[language=SQL]
 SELECT district, SUM(CASE WHEN arrest = 'true' THEN 1 ELSE 0 END) AS total_arrests FROM crimes WHERE district IS NOT NULL AND district != '' GROUP BY district ORDER BY total_arrests DESC LIMIT 10;
+\end{lstlisting}
 
--- Query 7: AVG (Screenshot: hiveq7.png)
+\textbf{Query 7: AVG}
+\begin{lstlisting}[language=SQL]
 SELECT beat, AVG(CASE WHEN domestic = 'true' THEN 1.0 ELSE 0.0 END) AS avg_domestic FROM crimes WHERE beat IS NOT NULL AND beat != '' GROUP BY beat ORDER BY avg_domestic DESC LIMIT 10;
+\end{lstlisting}
 
--- Query 8: MAX (Screenshot: hiveq8.png)
+\textbf{Query 8: MAX}
+\begin{lstlisting}[language=SQL]
 SELECT district, COUNT(*) AS district_total FROM crimes WHERE district IS NOT NULL AND district != '' GROUP BY district ORDER BY district_total DESC LIMIT 1;
+\end{lstlisting}
 
--- Query 9: MIN (Screenshot: hiveq9.png)
+\textbf{Query 9: MIN}
+\begin{lstlisting}[language=SQL]
 SELECT district, COUNT(*) AS district_total FROM crimes WHERE district IS NOT NULL AND district != '' GROUP BY district ORDER BY district_total ASC LIMIT 1;
+\end{lstlisting}
 
--- Query 10: JOIN (Screenshot: hiveq10.png)
+\textbf{Query 10: JOIN}
+\begin{lstlisting}[language=SQL]
 SELECT c.case_number, c.primary_type, a.area_name FROM crimes c JOIN community_areas a ON (c.community_area = a.area_code) LIMIT 15;
+\end{lstlisting}
 
--- Exit Hive interactive CLI
+\textbf{Exit Hive CLI:}
+\begin{lstlisting}[language=SQL]
 exit;
 \end{lstlisting}
 
@@ -237,7 +270,7 @@ find . -type f \( -name "*.aux" -o -name "*.log" -o -name "*.out" -o -name "*.sn
 # Stage, commit, and push updated PDF deliverables to GitHub
 cd ..
 git add .
-git commit -m "Update commands_executed documentation to reflect 100% raw manual execution"
+git commit -m "Update commands_executed documentation with separate code blocks for each query"
 git push
 \end{lstlisting}
 

@@ -98,7 +98,7 @@ jar -cvf crimecount.jar -C classes/ .
 # Remove existing HDFS output folder if present
 hdfs dfs -rm -r -f /user/hadoop/bigdata_project/crime_output
 
-# SUBMIT MAPREDUCE JOB DIRECTLY TO HADOOP YARN CLUSTER:
+# 🔥 SUBMIT MAPREDUCE JOB DIRECTLY TO HADOOP YARN CLUSTER:
 hadoop jar crimecount.jar bigdata.CrimeTypeCount /user/hadoop/bigdata_project/crimes /user/hadoop/bigdata_project/crime_output
 
 # Print frequency output table from HDFS (Screenshot 3: mr_output.png)
@@ -107,9 +107,9 @@ hdfs dfs -cat /user/hadoop/bigdata_project/crime_output/part-r-00000 | head -n 2
 
 ---
 
-## 📌 Phase 7: Apache Hive Derby Metastore Setup & Interactive DDL / Queries
+## 📌 Phase 7: Apache Hive Setup & Individual Queries (Copy-Paste Ready)
 
-Ran directly on VM Terminal:
+Ran directly on VM Terminal to start Hive CLI:
 ```bash
 # Reset metastore database folder
 rm -rf metastore_db
@@ -121,12 +121,17 @@ schematool -dbType derby -initSchema
 hive
 ```
 
-Executed manually line-by-line inside the interactive `hive>` prompt:
-```sql
--- Select default database
-USE default;
+---
 
--- Create OpenCSVSerde Table for Crimes Dataset
+### 🟢 Hive Database DDL & Table Setup Commands
+
+Set Default Database:
+```sql
+USE default;
+```
+
+Create `crimes` Table:
+```sql
 CREATE TABLE crimes (
     id STRING, case_number STRING, crime_date STRING, block STRING,
     iucr STRING, primary_type STRING, description STRING,
@@ -139,48 +144,80 @@ ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
 WITH SERDEPROPERTIES ("separatorChar" = ",", "quoteChar" = "\"")
 STORED AS TEXTFILE
 TBLPROPERTIES("skip.header.line.count"="1");
+```
 
--- Load Cleaned Dataset into Hive Table
+Load Data into `crimes` Table:
+```sql
 LOAD DATA LOCAL INPATH 'dataset/chicago_crimes_clean.csv' INTO TABLE crimes;
+```
 
--- Create Reference Table for Community Area Names
+Create `community_areas` Reference Table:
+```sql
 CREATE TABLE community_areas (area_code STRING, area_name STRING)
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE;
+```
 
--- Load Community Area Reference Data
+Load Data into `community_areas` Table:
+```sql
 LOAD DATA LOCAL INPATH 'dataset/community_areas.csv' INTO TABLE community_areas;
+```
 
--- Query 1: SELECT (Screenshot: hiveq1.png)
+---
+
+### 🔵 Individual Analytical Queries (Paste into `hive>`)
+
+#### Query 1: SELECT (Retrieve first 10 records)
+```sql
 SELECT id, primary_type, description, crime_date FROM crimes LIMIT 10;
+```
 
--- Query 2: WHERE (Screenshot: hiveq2.png)
+#### Query 2: WHERE (Filter Narcotics arrests)
+```sql
 SELECT id, primary_type, description, arrest FROM crimes WHERE primary_type = 'NARCOTICS' AND arrest = 'true' LIMIT 10;
+```
 
--- Query 3: ORDER BY (Screenshot: hive1.png)
+#### Query 3: ORDER BY (Sort homicides chronologically)
+```sql
 SELECT case_number, primary_type, crime_date FROM crimes WHERE primary_type = 'HOMICIDE' ORDER BY crime_date DESC LIMIT 10;
+```
 
--- Query 4: GROUP BY & COUNT (Screenshot: hiveq4.png - Triggers Hive MapReduce)
+#### Query 4: GROUP BY & COUNT (Crimes per location description - Triggers MapReduce)
+```sql
 SELECT location_description, COUNT(*) AS crime_count FROM crimes GROUP BY location_description ORDER BY crime_count DESC LIMIT 15;
+```
 
--- Query 5: HAVING (Screenshot: hiveq5.png)
+#### Query 5: HAVING (Major crime categories > 500 cases)
+```sql
 SELECT primary_type, COUNT(*) as total FROM crimes GROUP BY primary_type HAVING COUNT(*) > 500 ORDER BY total DESC;
+```
 
--- Query 6: SUM (Screenshot: hiveq6.png)
+#### Query 6: SUM (Total arrests per district)
+```sql
 SELECT district, SUM(CASE WHEN arrest = 'true' THEN 1 ELSE 0 END) AS total_arrests FROM crimes WHERE district IS NOT NULL AND district != '' GROUP BY district ORDER BY total_arrests DESC LIMIT 10;
+```
 
--- Query 7: AVG (Screenshot: hiveq7.png)
+#### Query 7: AVG (Domestic crime rate per beat)
+```sql
 SELECT beat, AVG(CASE WHEN domestic = 'true' THEN 1.0 ELSE 0.0 END) AS avg_domestic FROM crimes WHERE beat IS NOT NULL AND beat != '' GROUP BY beat ORDER BY avg_domestic DESC LIMIT 10;
+```
 
--- Query 8: MAX (Screenshot: hiveq8.png)
+#### Query 8: MAX (District with maximum crime count)
+```sql
 SELECT district, COUNT(*) AS district_total FROM crimes WHERE district IS NOT NULL AND district != '' GROUP BY district ORDER BY district_total DESC LIMIT 1;
+```
 
--- Query 9: MIN (Screenshot: hiveq9.png)
+#### Query 9: MIN (District with minimum crime count)
+```sql
 SELECT district, COUNT(*) AS district_total FROM crimes WHERE district IS NOT NULL AND district != '' GROUP BY district ORDER BY district_total ASC LIMIT 1;
+```
 
--- Query 10: JOIN (Screenshot: hiveq10.png)
+#### Query 10: JOIN (Join crimes with community area names)
+```sql
 SELECT c.case_number, c.primary_type, a.area_name FROM crimes c JOIN community_areas a ON (c.community_area = a.area_code) LIMIT 15;
+```
 
--- Exit Hive interactive CLI
+Exit Hive Shell:
+```sql
 exit;
 ```
 
@@ -220,7 +257,7 @@ find . -type f \( -name "*.aux" -o -name "*.log" -o -name "*.out" -o -name "*.sn
 # Stage, commit, and push updated PDF deliverables to GitHub
 cd ..
 git add .
-git commit -m "Update commands_executed documentation with summary section at last"
+git commit -m "Separate every query into its own individual code block in COMMANDS_EXECUTED.md"
 git push
 ```
 
