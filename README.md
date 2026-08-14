@@ -1,48 +1,143 @@
 # Big Data Analytics of Crime Patterns using Hadoop MapReduce and Apache Hive
 
-This project demonstrates a comprehensive Big Data pipeline to analyze and process large-scale incident reports from the Chicago Crimes dataset. It utilizes Hadoop MapReduce for distributed data processing and Apache Hive for relational analytics.
+**Course:** 23CSE352: Big Data Analytics  
+**Institution:** Amrita Vishwa Vidyapeetham  
+**Team Members:** Sheela Akshar Sakhi & Nishanth S Gowda  
 
-## Project Architecture
+---
+
+## 📌 Project Overview
+
+This project implements an end-to-end Big Data analytics pipeline to process, analyze, and extract actionable public safety intelligence from large-scale incident records in the **City of Chicago Crimes dataset**. 
+
+Using **Hadoop MapReduce** for parallel frequency aggregation and **Apache Hive** for relational data warehousing, the system extracts high-crime spatial hotspots, domestic crime rates, arrest efficiencies, and category-wise statistics.
+
+---
+
+## 📄 Key Deliverables & Quick Links
+
+* 📑 **[Project Report (PDF)](presentation/report.pdf)** - Complete 17-section academic report aligned with rubric instructions, featuring 17 embedded VM execution screenshots.
+* 📊 **[Presentation Deck (PDF)](presentation/presentation.pdf)** - 20-slide academic Beamer presentation with live execution proof slides.
+* 🛠️ **[VM Execution Guide (Markdown)](VM_GUIDE.md)** - Step-by-step walkthrough for running the pipeline on a Linux Virtual Machine.
+
+---
+
+## 🏗️ System Architecture
+
+```
++------------------+      +-------------------+      +-----------------------+
+| Chicago Crimes   | ---> | Python            | ---> | HDFS Distributed      |
+| API / Raw CSV    |      | Preprocessing     |      | Data Lake             |
++------------------+      +-------------------+      +-----------------------+
+                                                                |
+                                                +---------------+---------------+
+                                                |                               |
+                                                v                               v
+                                    +-----------------------+       +-----------------------+
+                                    | Hadoop MapReduce      |       | Apache Hive           |
+                                    | (Java YARN Job)       |       | (OpenCSVSerde SQL)    |
+                                    +-----------------------+       +-----------------------+
+```
 
 1. **Data Ingestion & Preprocessing:** 
-   - A dataset of 10,000 recent Chicago Crime records is downloaded via the Socrata API.
-   - The data is cleaned using a Python script to ensure compatibility with Hadoop's `TextInputFormat` (removing embedded newlines).
-   - The processed data is uploaded to a centralized HDFS datalake.
+   - Real-world crime incident records downloaded via the Socrata Open Data API.
+   - Cleaned via `preprocess.py` to replace embedded newlines (`\n`) inside double-quoted text fields, ensuring row alignment for Hadoop `TextInputFormat` (29,913 clean rows).
+   - Uploaded into HDFS at `/user/hadoop/bigdata_project/crimes/chicago_crimes_clean.csv`.
 
 2. **Hadoop MapReduce:**
-   - A custom Java MapReduce application processes the unstructured CSV data.
-   - **Mapper:** Extracts the primary crime type from each record and emits a count of 1.
-   - **Reducer:** Aggregates the counts to determine the overall frequency of each crime category (e.g., THEFT, BATTERY).
+   - **Mapper (`CrimeMapper`):** Uses regular expression splitting `,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)` to parse CSV columns safely and emit `(CrimeType, 1)`.
+   - **Reducer (`CrimeReducer`):** Aggregates intermediate key-value pairs to compute frequency counts per category (`THEFT: 2,150`, `BATTERY: 1,857`, `CRIMINAL DAMAGE: 1,207`).
 
 3. **Apache Hive Analytics:**
-   - Data is queried using HiveQL via an `OpenCSVSerde` external table.
-   - 10 complex queries are executed to extract business intelligence (including SELECT, WHERE, ORDER BY, GROUP BY, HAVING, COUNT, SUM, AVG, MAX, MIN, and JOIN operations).
+   - External table `crimes` created with `org.apache.hadoop.hive.serde2.OpenCSVSerde`.
+   - 10 complex queries executed covering `SELECT`, `WHERE`, `ORDER BY`, `GROUP BY`, `HAVING`, `COUNT`, `SUM`, `AVG`, `MAX`, `MIN`, and `JOIN` operations.
 
-## Repository Structure
+---
 
-* `dataset/`: Contains the initial and cleaned CSV files (tracked out via `.gitignore` to prevent large uploads).
-* `src/`: Contains the Java MapReduce source code (`CrimeTypeCount.java`).
-* `presentation/`: Contains the LaTeX source code and compiled PDFs for both the presentation slides and the final project report.
-* `VM_GUIDE.md`: A step-by-step tutorial on how to execute the project on a VM and capture screenshots for grading.
-* `download_dataset.sh`: Shell script to fetch the Chicago Crimes data.
-* `preprocess.py`: Python script to clean the raw data.
-* `setup_hdfs.sh`: Script to initialize HDFS directories and upload the cleaned data.
-* `run_mapreduce.sh`: Script to compile the Java code into a JAR and execute it on the Hadoop cluster.
-* `run_hive.sh`: Script to execute the Hive analytics queries.
+## 📊 Hive Queries Mapping Table
 
-## Getting Started
+| Requirement | Query Focus | Business Intelligence Goal |
+| :--- | :--- | :--- |
+| **SELECT** | Q1: Retrieve basic records | Previewing raw incident data attributes |
+| **WHERE** | Q2: Filter Narcotics arrests | Measuring targeted drug enforcement incidents |
+| **ORDER BY** | Q3: Sort Homicides chronologically | Analyzing severe violent crime recency |
+| **GROUP BY & COUNT** | Q4: Crimes per location type | Identifying high-crime spatial hotspots (Street: 6,244) |
+| **HAVING** | Q5: Major categories (> 500 cases) | Filtering out low-frequency outlier crimes |
+| **SUM** | Q6: Arrests per district | Calculating total arrests per police district (Dist 11: 280) |
+| **AVG** | Q7: Domestic crime rate per beat | Computing average domestic violence ratio per beat (Beat 1024: 46.3%) |
+| **MAX** | Q8: District with highest crime | Pinpointing maximum incident volume district (Dist 12: 1,276) |
+| **MIN** | Q9: District with lowest crime | Pinpointing minimum incident volume district (Dist 20: 404) |
+| **JOIN** | Q10: Join Crimes & Community Areas | Merging area codes with neighborhood names |
 
-> **🚨 GRADING & REVIEW:** If you are running this for your university review, please follow the exact step-by-step instructions in the [VM Execution Guide](VM_GUIDE.md) to ensure you capture all required screenshots correctly!
+---
 
-### Quick Start
-1. Download the dataset: `./download_dataset.sh`
-2. Clean the dataset: `python3 preprocess.py`
-3. Upload to HDFS: `./setup_hdfs.sh`
-4. Run the MapReduce job: `./run_mapreduce.sh`
-5. Run the Hive queries: `./run_hive.sh`
+## 🚀 Step-by-Step Manual Execution Guide (VM Terminal)
 
-## Built With
-* [Apache Hadoop](https://hadoop.apache.org/) - Distributed data processing framework.
-* [Apache Hive](https://hive.apache.org/) - Data warehouse software for reading, writing, and managing large datasets.
-* [Java](https://www.java.com/) - Core language for MapReduce logic.
-* [LaTeX](https://www.latex-project.org/) - Used for creating the premium academic report and presentation.
+### 1. Start Hadoop Daemons
+```bash
+hdfs --daemon start namenode
+hdfs --daemon start datanode
+hdfs --daemon start secondarynamenode
+yarn --daemon start resourcemanager
+yarn --daemon start nodemanager
+jps
+```
+
+### 2. Ingestion & HDFS Upload
+```bash
+python3 preprocess.py
+hdfs dfs -mkdir -p /user/hadoop/bigdata_project/crimes
+hdfs dfs -put -f dataset/chicago_crimes_clean.csv /user/hadoop/bigdata_project/crimes/
+hdfs dfs -ls /user/hadoop/bigdata_project/crimes/
+```
+
+### 3. Compile & Run MapReduce
+```bash
+rm -rf classes && mkdir classes
+javac -source 1.8 -target 1.8 -classpath `hadoop classpath` -d classes src/CrimeTypeCount.java
+jar -cvf crimecount.jar -C classes/ .
+hdfs dfs -rm -r -f /user/hadoop/bigdata_project/crime_output
+hadoop jar crimecount.jar bigdata.CrimeTypeCount /user/hadoop/bigdata_project/crimes /user/hadoop/bigdata_project/crime_output
+hdfs dfs -cat /user/hadoop/bigdata_project/crime_output/part-r-00000 | head -n 20
+```
+
+### 4. Run Apache Hive Analytics
+```bash
+rm -rf metastore_db
+schematool -dbType derby -initSchema
+hive -f crime_analysis.hql > hive_output.txt
+```
+
+---
+
+## 📂 Repository Structure
+
+```
+.
+├── README.md                           # Comprehensive project documentation
+├── VM_GUIDE.md                         # Step-by-step VM screenshot & execution guide
+├── preprocess.py                       # Python script to fix embedded newlines in CSV
+├── download_dataset.sh                 # Script to fetch Chicago Crimes data
+├── setup_hdfs.sh                       # Script to initialize HDFS directories
+├── run_mapreduce.sh                    # Script to compile & run MapReduce job
+├── run_hive.sh                         # Script to execute Hive queries
+├── crime_analysis.hql                  # 10 HiveQL analytical queries
+├── dataset/
+│   └── community_areas.csv             # Community area code mapping for Hive JOIN
+├── src/
+│   └── CrimeTypeCount.java             # MapReduce Java source code (Mapper + Reducer)
+└── presentation/
+    ├── report.tex                      # Complete 17-section LaTeX report source
+    ├── report.pdf                      # Final compiled report PDF
+    ├── presentation.tex                # LaTeX Beamer presentation source
+    ├── presentation.pdf                # Final compiled presentation PDF
+    └── new_img/                        # 17 live VM execution screenshots
+```
+
+---
+
+## 🛠️ Technology Stack
+* **Storage:** Hadoop Distributed File System (HDFS)
+* **Compute:** Apache Hadoop MapReduce (Java YARN)
+* **Data Warehouse:** Apache Hive (OpenCSVSerde)
+* **Languages:** Java 8, Python 3, HiveQL, LaTeX (Beamer & Article)
