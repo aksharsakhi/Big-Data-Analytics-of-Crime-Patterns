@@ -7,6 +7,7 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{booktabs}
+\usepackage{float}
 
 % Custom Colors for code listing
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -162,36 +163,36 @@ The Reducer receives the intermediate key (\texttt{primary\_type}) and an iterab
 \section{Screenshots of execution}
 
 \subsection{Hadoop Cluster \& Daemon Startup}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{new_img/started hadoop.png}
+    \includegraphics[width=0.78\textwidth]{new_img/started hadoop.png}
     \caption{Manual startup and verification of Hadoop NameNode, DataNode, and YARN daemons via JPS.}
 \end{figure}
 
 \subsection{HDFS Storage Upload}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{new_img/hdfs_screenshot..png}
+    \includegraphics[width=0.78\textwidth]{new_img/hdfs_screenshot..png}
     \caption{Uploading cleaned dataset to HDFS distributed directory.}
 \end{figure}
 
 \subsection{MapReduce Execution}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{new_img/mr_execution1.png}
+    \includegraphics[width=0.78\textwidth]{new_img/mr_execution1.png}
     \caption{Compiling MapReduce Java code and packaging the JAR executable.}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{new_img/mr_execution2.png}
+    \includegraphics[width=0.78\textwidth]{new_img/mr_execution2.png}
     \caption{Executing MapReduce job on YARN cluster (Map 100\% Reduce 100\%).}
 \end{figure}
 
 \section{Output screenshots}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{new_img/mr_output.png}
+    \includegraphics[width=0.78\textwidth]{new_img/mr_output.png}
     \caption{MapReduce output displaying frequency counts per crime category.}
 \end{figure}
 
@@ -221,120 +222,130 @@ The following 10 meaningful queries were executed in Apache Hive on the dataset 
 
 \section{Each query executions}
 
-\textbf{1. SELECT - Retrieve the first 10 crime records.}
+\subsection{Query 1: SELECT}
+\textbf{Retrieve the first 10 crime records.}
 \begin{lstlisting}[language=SQL]
 SELECT id, primary_type, description, crime_date
 FROM crimes LIMIT 10;
 \end{lstlisting}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{new_img/hiveq1.png}
+    \includegraphics[width=0.78\textwidth]{new_img/hiveq1.png}
     \caption{Execution result for Query 1 (SELECT).}
 \end{figure}
 
-\textbf{2. WHERE - Find all incidents where an arrest was made for narcotics.}
+\subsection{Query 2: WHERE}
+\textbf{Find all incidents where an arrest was made for narcotics.}
 \begin{lstlisting}[language=SQL]
 SELECT id, primary_type, description, arrest
 FROM crimes WHERE primary_type = 'NARCOTICS' AND arrest = 'true' LIMIT 10;
 \end{lstlisting}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{new_img/hiveq2.png}
+    \includegraphics[width=0.78\textwidth]{new_img/hiveq2.png}
     \caption{Execution result for Query 2 (WHERE).}
 \end{figure}
 
-\textbf{3. ORDER BY - List recent homicides ordered by date.}
+\subsection{Query 3: ORDER BY}
+\textbf{List recent homicides ordered by date.}
 \begin{lstlisting}[language=SQL]
 SELECT case_number, primary_type, crime_date
 FROM crimes WHERE primary_type = 'HOMICIDE'
 ORDER BY crime_date DESC LIMIT 10;
 \end{lstlisting}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{new_img/hive1.png}
+    \includegraphics[width=0.78\textwidth]{new_img/hive1.png}
     \caption{Execution result for Query 3 (ORDER BY).}
 \end{figure}
 
-\textbf{4. GROUP BY \& COUNT - Find the number of crimes per location description.}
+\subsection{Query 4: GROUP BY \& COUNT}
+\textbf{Find the number of crimes per location description.}
 \begin{lstlisting}[language=SQL]
 SELECT location_description, COUNT(*) AS crime_count
 FROM crimes GROUP BY location_description
 ORDER BY crime_count DESC LIMIT 15;
 \end{lstlisting}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{new_img/hiveq4.png}
+    \includegraphics[width=0.78\textwidth]{new_img/hiveq4.png}
     \caption{Execution result for Query 4 (GROUP BY \& COUNT).}
 \end{figure}
 
-\textbf{5. HAVING - Find primary crime types that occurred more than 500 times.}
+\subsection{Query 5: HAVING}
+\textbf{Find primary crime types that occurred more than 500 times.}
 \begin{lstlisting}[language=SQL]
 SELECT primary_type, COUNT(*) as total
 FROM crimes GROUP BY primary_type
 HAVING COUNT(*) > 500 ORDER BY total DESC;
 \end{lstlisting}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{new_img/hiveq5.png}
+    \includegraphics[width=0.78\textwidth]{new_img/hiveq5.png}
     \caption{Execution result for Query 5 (HAVING).}
 \end{figure}
 
-\textbf{6. SUM - Calculate the total number of arrests made per district.}
+\subsection{Query 6: SUM}
+\textbf{Calculate the total number of arrests made per district.}
 \begin{lstlisting}[language=SQL]
 SELECT district, SUM(CASE WHEN arrest = 'true' THEN 1 ELSE 0 END) AS total_arrests
 FROM crimes WHERE district IS NOT NULL AND district != ''
 GROUP BY district ORDER BY total_arrests DESC LIMIT 10;
 \end{lstlisting}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{new_img/hiveq6.png}
+    \includegraphics[width=0.78\textwidth]{new_img/hiveq6.png}
     \caption{Execution result for Query 6 (SUM).}
 \end{figure}
 
-\textbf{7. AVG - Calculate the average number of domestic crimes per beat.}
+\subsection{Query 7: AVG}
+\textbf{Calculate the average number of domestic crimes per beat.}
 \begin{lstlisting}[language=SQL]
 SELECT beat, AVG(CASE WHEN domestic = 'true' THEN 1.0 ELSE 0.0 END) AS avg_domestic
 FROM crimes WHERE beat IS NOT NULL AND beat != ''
 GROUP BY beat ORDER BY avg_domestic DESC LIMIT 10;
 \end{lstlisting}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{new_img/hiveq7.png}
+    \includegraphics[width=0.78\textwidth]{new_img/hiveq7.png}
     \caption{Execution result for Query 7 (AVG).}
 \end{figure}
 
-\textbf{8. MAX - Find the district with the maximum reported cases.}
+\subsection{Query 8: MAX}
+\textbf{Find the district with the maximum reported cases.}
 \begin{lstlisting}[language=SQL]
 SELECT district, COUNT(*) AS district_total
 FROM crimes WHERE district IS NOT NULL AND district != ''
 GROUP BY district ORDER BY district_total DESC LIMIT 1;
 \end{lstlisting}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{new_img/hiveq8.png}
+    \includegraphics[width=0.78\textwidth]{new_img/hiveq8.png}
     \caption{Execution result for Query 8 (MAX).}
 \end{figure}
 
-\textbf{9. MIN - Find the district with the minimum reported cases.}
+\subsection{Query 9: MIN}
+\textbf{Find the district with the minimum reported cases.}
 \begin{lstlisting}[language=SQL]
 SELECT district, COUNT(*) AS district_total
 FROM crimes WHERE district IS NOT NULL AND district != ''
 GROUP BY district ORDER BY district_total ASC LIMIT 1;
 \end{lstlisting}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{new_img/hiveq9.png}
+    \includegraphics[width=0.78\textwidth]{new_img/hiveq9.png}
     \caption{Execution result for Query 9 (MIN).}
 \end{figure}
 
-\textbf{10. JOIN - Join crimes and community\_areas to display community names.}
+\subsection{Query 10: JOIN}
+\textbf{Join crimes and community\_areas to display community names.}
 \begin{lstlisting}[language=SQL]
 SELECT c.case_number, c.primary_type, a.area_name
 FROM crimes c JOIN community_areas a ON (c.community_area = a.area_code) LIMIT 15;
 \end{lstlisting}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{new_img/hiveq10.png}
+    \includegraphics[width=0.78\textwidth]{new_img/hiveq10.png}
     \caption{Execution result for Query 10 (JOIN).}
 \end{figure}
 
