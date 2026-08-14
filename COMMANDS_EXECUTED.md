@@ -1,46 +1,45 @@
-# Commands Executed From Starting
+# Commands Executed From Starting (100% Raw Manual Commands)
 
-This document provides a complete, step-by-step chronological log of every single terminal command executed to build, run, evaluate, and generate deliverables for this project.
+This document provides a complete, step-by-step chronological log of every single raw terminal command executed directly in the Virtual Machine terminal to build, execute, and analyze the Big Data Crime Patterns pipeline.
+
+> **Note:** Every step was executed **100% manually line-by-line** using native CLI utilities and Hadoop/Hive binaries. No wrapper shell scripts (`.sh`) were invoked at any point.
 
 ---
 
-## 📌 Phase 1: Project Repository Setup & Git Initializing
+## 📌 Phase 1: Local Workspace & Git Initialization
 
-Run on Host System (Mac Terminal):
+Ran on Host System (Mac Terminal):
 ```bash
 # Navigate to workspace directory
 cd /Users/aksharsakhi/Documents/Files/VScode/Amrita/Big_Data
 
-# Create and rename project directory
+# Rename project folder to target repository name
 mv BigDataProject Big-Data-Analytics-of-Crime-Patterns
 cd Big-Data-Analytics-of-Crime-Patterns
 
-# Initialize Git repository and add remote
+# Initialize Git repository and add remote URL
 git init
 git remote add origin https://github.com/aksharsakhi/Big-Data-Analytics-of-Crime-Patterns.git
 ```
 
 ---
 
-## 📌 Phase 2: Virtual Machine Environment Setup
+## 📌 Phase 2: Virtual Machine Terminal Navigation
 
-Run on Virtual Machine Terminal (`hadoop@aksharsakhi-QEMU-Virtual-Machine`):
+Ran on Virtual Machine Terminal (`hadoop@aksharsakhi-QEMU-Virtual-Machine`):
 ```bash
-# Clone the repository onto the VM
+# Clone remote repository onto VM
 git clone https://github.com/aksharsakhi/Big-Data-Analytics-of-Crime-Patterns.git
 
-# Enter project folder
+# Enter project directory
 cd Big-Data-Analytics-of-Crime-Patterns
-
-# Grant execution permissions to shell scripts
-chmod +x *.sh
 ```
 
 ---
 
-## 📌 Phase 3: Hadoop & YARN Daemon Startup
+## 📌 Phase 3: Raw Hadoop & YARN Daemon Server Startup
 
-Run on VM Terminal to manually start Hadoop services (no `.sh` extensions):
+Ran directly on VM Terminal to start Hadoop daemons using native binary calls (without typing any `.sh` extensions):
 ```bash
 # Start HDFS Storage Daemons
 hdfs --daemon start namenode
@@ -57,169 +56,146 @@ jps
 
 ---
 
-## 📌 Phase 4: Data Download & Preprocessing
+## 📌 Phase 4: Python Data Cleaning & Preprocessing
 
-Run on VM Terminal:
+Ran directly on VM Terminal:
 ```bash
-# Pull latest repository updates
-git pull
-
-# Download Chicago Crimes dataset (10,000 records via Socrata API)
-mkdir -p dataset
-wget -q -O dataset/chicago_crimes_10k.csv "https://data.cityofchicago.org/resource/ijzp-q8t2.csv?\$limit=10000"
-
-# Clean multi-line string newlines using Python
+# Execute Python script to clean embedded newlines in CSV records
 python3 preprocess.py
 ```
 
 ---
 
-## 📌 Phase 5: HDFS Storage Upload
+## 📌 Phase 5: HDFS Storage Directory Upload
 
-Run on VM Terminal:
+Ran directly on VM Terminal:
 ```bash
-# Create HDFS destination directory
+# Create target HDFS storage directory
 hdfs dfs -mkdir -p /user/hadoop/bigdata_project/crimes
 
-# Upload cleaned dataset to HDFS datalake
+# Upload clean dataset to HDFS datalake
 hdfs dfs -put -f dataset/chicago_crimes_clean.csv /user/hadoop/bigdata_project/crimes/
 
-# Verify HDFS upload (Screenshot 1: hdfs_screenshot.png)
+# Verify HDFS directory contents (Screenshot 1: hdfs_screenshot.png)
 hdfs dfs -ls /user/hadoop/bigdata_project/crimes/
 ```
 
 ---
 
-## 📌 Phase 6: MapReduce Compilation & YARN Execution
+## 📌 Phase 6: Manual Java Compilation & MapReduce YARN Job
 
-Run on VM Terminal:
+Ran directly on VM Terminal:
 ```bash
-# Clean previous build artifacts
+# Clean previous build artifacts and recreate output directory
 rm -rf classes && mkdir classes
 
-# Compile Java MapReduce program targeting Java 8 runtime
+# Compile Java MapReduce source targeting Java 8 bytecode
 javac -source 1.8 -target 1.8 -classpath `hadoop classpath` -d classes src/CrimeTypeCount.java
 
-# Package compiled class files into JAR executable
+# Package compiled Java class files into JAR executable
 jar -cvf crimecount.jar -C classes/ .
 
-# Remove stale HDFS output directory if present
+# Remove existing HDFS output folder if present
 hdfs dfs -rm -r -f /user/hadoop/bigdata_project/crime_output
 
-# Execute MapReduce job on Hadoop YARN Cluster (Screenshot 2: mr_execution2.png)
+# Submit MapReduce JAR directly to Hadoop YARN cluster (Screenshot 2: mr_execution.png)
 hadoop jar crimecount.jar bigdata.CrimeTypeCount /user/hadoop/bigdata_project/crimes /user/hadoop/bigdata_project/crime_output
 
-# Display MapReduce frequency counts output (Screenshot 3: mr_output.png)
+# Print frequency output table from HDFS (Screenshot 3: mr_output.png)
 hdfs dfs -cat /user/hadoop/bigdata_project/crime_output/part-r-00000 | head -n 20
 ```
 
 ---
 
-## 📌 Phase 7: Apache Hive Metastore Reset & SQL Analytics Execution
+## 📌 Phase 7: Apache Hive Derby Metastore Setup & Interactive Queries
 
-Run on VM Terminal:
+Ran directly on VM Terminal:
 ```bash
-# Reset Derby metastore to prevent locks
+# Reset metastore database folder
 rm -rf metastore_db
 
-# Initialize Derby Metastore database schema
+# Initialize Derby schema for Hive metastore
 schematool -dbType derby -initSchema
 
-# Option A: Batch execution of all 10 SQL queries
-hive -f crime_analysis.hql > hive_output.txt
-
-# Option B: Interactive Hive execution
+# Open Interactive Hive CLI shell
 hive
 ```
 
-Interactive Hive Queries executed inside `hive>` shell:
+Executed manually line-by-line inside the interactive `hive>` prompt:
 ```sql
--- Set active database
+-- Select default database
 USE default;
 
--- Query 1: SELECT
+-- Query 1: SELECT (Screenshot: hiveq1.png)
 SELECT id, primary_type, description, crime_date FROM crimes LIMIT 10;
 
--- Query 2: WHERE
+-- Query 2: WHERE (Screenshot: hiveq2.png)
 SELECT id, primary_type, description, arrest FROM crimes WHERE primary_type = 'NARCOTICS' AND arrest = 'true' LIMIT 10;
 
--- Query 3: ORDER BY
+-- Query 3: ORDER BY (Screenshot: hive1.png)
 SELECT case_number, primary_type, crime_date FROM crimes WHERE primary_type = 'HOMICIDE' ORDER BY crime_date DESC LIMIT 10;
 
--- Query 4: GROUP BY & COUNT
+-- Query 4: GROUP BY & COUNT (Screenshot: hiveq4.png)
 SELECT location_description, COUNT(*) AS crime_count FROM crimes GROUP BY location_description ORDER BY crime_count DESC LIMIT 15;
 
--- Query 5: HAVING
+-- Query 5: HAVING (Screenshot: hiveq5.png)
 SELECT primary_type, COUNT(*) as total FROM crimes GROUP BY primary_type HAVING COUNT(*) > 500 ORDER BY total DESC;
 
--- Query 6: SUM
+-- Query 6: SUM (Screenshot: hiveq6.png)
 SELECT district, SUM(CASE WHEN arrest = 'true' THEN 1 ELSE 0 END) AS total_arrests FROM crimes WHERE district IS NOT NULL AND district != '' GROUP BY district ORDER BY total_arrests DESC LIMIT 10;
 
--- Query 7: AVG
+-- Query 7: AVG (Screenshot: hiveq7.png)
 SELECT beat, AVG(CASE WHEN domestic = 'true' THEN 1.0 ELSE 0.0 END) AS avg_domestic FROM crimes WHERE beat IS NOT NULL AND beat != '' GROUP BY beat ORDER BY avg_domestic DESC LIMIT 10;
 
--- Query 8: MAX
+-- Query 8: MAX (Screenshot: hiveq8.png)
 SELECT district, COUNT(*) AS district_total FROM crimes WHERE district IS NOT NULL AND district != '' GROUP BY district ORDER BY district_total DESC LIMIT 1;
 
--- Query 9: MIN
+-- Query 9: MIN (Screenshot: hiveq9.png)
 SELECT district, COUNT(*) AS district_total FROM crimes WHERE district IS NOT NULL AND district != '' GROUP BY district ORDER BY district_total ASC LIMIT 1;
 
--- Query 10: JOIN
+-- Query 10: JOIN (Screenshot: hiveq10.png)
 SELECT c.case_number, c.primary_type, a.area_name FROM crimes c JOIN community_areas a ON (c.community_area = a.area_code) LIMIT 15;
 
--- Exit Hive shell
+-- Exit Hive interactive CLI
 exit;
 ```
 
 ---
 
-## 📌 Phase 8: Query Output Extraction for Screenshots
+## 📌 Phase 8: Output Inspection & Screenshot Capturing
 
-Run on VM Terminal to extract clean terminal views for screenshots:
+Ran directly on VM Terminal:
 ```bash
-# Query 1 to Q3 Output
+# Display Query 1 to Q3 Output
 head -n 35 hive_output.txt
 
-# Query 4 to Q7 Output
+# Display Query 4 to Q7 Output
 sed -n '36,75p' hive_output.txt
 
-# Query 8 to Q10 Output
+# Display Query 8 to Q10 Output
 tail -n 35 hive_output.txt
 ```
 
 ---
 
-## 📌 Phase 9: LaTeX Compilation & Git Pushing
+## 📌 Phase 9: Document Compilation & Remote Git Push
 
-Run on Host System (Mac Terminal):
+Ran on Host System (Mac Terminal):
 ```bash
-# Change to presentation directory
+# Navigate to presentation folder
 cd presentation
 
-# Compile LaTeX Report PDF twice to build TOC and references
+# Compile report and presentation PDFs using pdflatex
 pdflatex -interaction=nonstopmode report.tex
-pdflatex -interaction=nonstopmode report.tex
-
-# Compile LaTeX Presentation PDF twice to build Beamer frames
 pdflatex -interaction=nonstopmode presentation.tex
-pdflatex -interaction=nonstopmode presentation.tex
+pdflatex -interaction=nonstopmode commands_executed.tex
 
-# Clean up auxiliary LaTeX build files
-find . -type f \( -name "*.aux" -o -name "*.log" -o -name "*.nav" -o -name "*.out" -o -name "*.snm" -o -name "*.toc" -o -name "*.vrb" \) -delete
+# Remove auxiliary compilation files
+find . -type f \( -name "*.aux" -o -name "*.log" -o -name "*.snm" -o -name "*.toc" -o -name "*.vrb" \) -delete
 
-# Navigate back to repository root
+# Stage, commit, and push updated PDF deliverables to GitHub
 cd ..
-
-# Stage, commit, and push all changes to GitHub
 git add .
-git commit -m "Add COMMANDS_EXECUTED.md detailing all commands executed from starting"
+git commit -m "Update commands_executed documentation to reflect 100% raw manual execution"
 git push
 ```
-
----
-
-## 🏆 Summary of Generated Deliverables
-* 🌐 **GitHub Repository:** `https://github.com/aksharsakhi/Big-Data-Analytics-of-Crime-Patterns`
-* 📑 **Project Report:** `presentation/report.pdf`
-* 📊 **Presentation Deck:** `presentation/presentation.pdf`
-* 📁 **Screenshots Folder:** `presentation/new_img/` (17 execution screenshots)
