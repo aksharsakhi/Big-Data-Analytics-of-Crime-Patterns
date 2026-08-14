@@ -98,7 +98,7 @@ jar -cvf crimecount.jar -C classes/ .
 # Remove existing HDFS output folder if present
 hdfs dfs -rm -r -f /user/hadoop/bigdata_project/crime_output
 
-# 🔥 SUBMIT MAPREDUCE JOB DIRECTLY TO HADOOP YARN CLUSTER:
+# SUBMIT MAPREDUCE JOB DIRECTLY TO HADOOP YARN CLUSTER:
 hadoop jar crimecount.jar bigdata.CrimeTypeCount /user/hadoop/bigdata_project/crimes /user/hadoop/bigdata_project/crime_output
 
 # Print frequency output table from HDFS (Screenshot 3: mr_output.png)
@@ -215,11 +215,27 @@ pdflatex -interaction=nonstopmode presentation.tex
 pdflatex -interaction=nonstopmode commands_executed.tex
 
 # Remove auxiliary compilation files
-find . -type f \( -name "*.aux" -o -name "*.log" -o -name "*.snm" -o -name "*.toc" -o -name "*.vrb" \) -delete
+find . -type f \( -name "*.aux" -o -name "*.log" -o -name "*.out" -o -name "*.snm" -o -name "*.toc" -o -name "*.vrb" \) -delete
 
 # Stage, commit, and push updated PDF deliverables to GitHub
 cd ..
 git add .
-git commit -m "Update commands_executed documentation with explicit DDL and MapReduce job command"
+git commit -m "Update commands_executed documentation with summary section at last"
 git push
+```
+
+---
+
+## ⚡ Quick Reference: Core MapReduce & Hive Commands
+
+Below are the **two primary commands** executed to demonstrate MapReduce and Hive Query functionality:
+
+### 1️⃣ MapReduce Java Application Execution:
+```bash
+hadoop jar crimecount.jar bigdata.CrimeTypeCount /user/hadoop/bigdata_project/crimes /user/hadoop/bigdata_project/crime_output
+```
+
+### 2️⃣ Apache Hive Analytical Query Execution (Inside `hive>` shell):
+```sql
+SELECT location_description, COUNT(*) AS crime_count FROM crimes GROUP BY location_description ORDER BY crime_count DESC LIMIT 15;
 ```

@@ -232,13 +232,26 @@ pdflatex -interaction=nonstopmode presentation.tex
 pdflatex -interaction=nonstopmode commands_executed.tex
 
 # Remove auxiliary compilation files
-find . -type f \( -name "*.aux" -o -name "*.log" -o -name "*.nav" -o -name "*.out" -o -name "*.snm" -o -name "*.toc" -o -name "*.vrb" \) -delete
+find . -type f \( -name "*.aux" -o -name "*.log" -o -name "*.out" -o -name "*.snm" -o -name "*.toc" -o -name "*.vrb" \) -delete
 
 # Stage, commit, and push updated PDF deliverables to GitHub
 cd ..
 git add .
-git commit -m "Update commands_executed documentation to include Hive DDL and MapReduce job command"
+git commit -m "Update commands_executed documentation to reflect 100% raw manual execution"
 git push
+\end{lstlisting}
+
+\section{Quick Reference: Core MapReduce \& Hive Commands}
+Below are the two primary commands executed to demonstrate MapReduce and Hive Query functionality:
+
+\subsection{1. MapReduce Java Application Execution}
+\begin{lstlisting}[language=bash]
+hadoop jar crimecount.jar bigdata.CrimeTypeCount /user/hadoop/bigdata_project/crimes /user/hadoop/bigdata_project/crime_output
+\end{lstlisting}
+
+\subsection{2. Apache Hive Analytical Query Execution}
+\begin{lstlisting}[language=SQL]
+SELECT location_description, COUNT(*) AS crime_count FROM crimes GROUP BY location_description ORDER BY crime_count DESC LIMIT 15;
 \end{lstlisting}
 
 \end{document}
