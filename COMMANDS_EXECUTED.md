@@ -82,7 +82,7 @@ hdfs dfs -ls /user/hadoop/bigdata_project/crimes/
 
 ---
 
-## 📌 Phase 6: Manual Java Compilation & MapReduce YARN Job
+## 📌 Phase 6: Manual Java Compilation & MapReduce YARN Job Execution
 
 Ran directly on VM Terminal:
 ```bash
@@ -98,7 +98,7 @@ jar -cvf crimecount.jar -C classes/ .
 # Remove existing HDFS output folder if present
 hdfs dfs -rm -r -f /user/hadoop/bigdata_project/crime_output
 
-# Submit MapReduce JAR directly to Hadoop YARN cluster (Screenshot 2: mr_execution.png)
+# 🔥 SUBMIT MAPREDUCE JOB DIRECTLY TO HADOOP YARN CLUSTER:
 hadoop jar crimecount.jar bigdata.CrimeTypeCount /user/hadoop/bigdata_project/crimes /user/hadoop/bigdata_project/crime_output
 
 # Print frequency output table from HDFS (Screenshot 3: mr_output.png)
@@ -107,7 +107,7 @@ hdfs dfs -cat /user/hadoop/bigdata_project/crime_output/part-r-00000 | head -n 2
 
 ---
 
-## 📌 Phase 7: Apache Hive Derby Metastore Setup & Interactive Queries
+## 📌 Phase 7: Apache Hive Derby Metastore Setup & Interactive DDL / Queries
 
 Ran directly on VM Terminal:
 ```bash
@@ -126,6 +126,30 @@ Executed manually line-by-line inside the interactive `hive>` prompt:
 -- Select default database
 USE default;
 
+-- Create OpenCSVSerde Table for Crimes Dataset
+CREATE TABLE crimes (
+    id STRING, case_number STRING, crime_date STRING, block STRING,
+    iucr STRING, primary_type STRING, description STRING,
+    location_description STRING, arrest STRING, domestic STRING,
+    beat STRING, district STRING, ward STRING, community_area STRING,
+    fbi_code STRING, x_coordinate STRING, y_coordinate STRING,
+    year STRING, updated_on STRING, latitude STRING, longitude STRING, location STRING
+)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+WITH SERDEPROPERTIES ("separatorChar" = ",", "quoteChar" = "\"")
+STORED AS TEXTFILE
+TBLPROPERTIES("skip.header.line.count"="1");
+
+-- Load Cleaned Dataset into Hive Table
+LOAD DATA LOCAL INPATH 'dataset/chicago_crimes_clean.csv' INTO TABLE crimes;
+
+-- Create Reference Table for Community Area Names
+CREATE TABLE community_areas (area_code STRING, area_name STRING)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE;
+
+-- Load Community Area Reference Data
+LOAD DATA LOCAL INPATH 'dataset/community_areas.csv' INTO TABLE community_areas;
+
 -- Query 1: SELECT (Screenshot: hiveq1.png)
 SELECT id, primary_type, description, crime_date FROM crimes LIMIT 10;
 
@@ -135,7 +159,7 @@ SELECT id, primary_type, description, arrest FROM crimes WHERE primary_type = 'N
 -- Query 3: ORDER BY (Screenshot: hive1.png)
 SELECT case_number, primary_type, crime_date FROM crimes WHERE primary_type = 'HOMICIDE' ORDER BY crime_date DESC LIMIT 10;
 
--- Query 4: GROUP BY & COUNT (Screenshot: hiveq4.png)
+-- Query 4: GROUP BY & COUNT (Screenshot: hiveq4.png - Triggers Hive MapReduce)
 SELECT location_description, COUNT(*) AS crime_count FROM crimes GROUP BY location_description ORDER BY crime_count DESC LIMIT 15;
 
 -- Query 5: HAVING (Screenshot: hiveq5.png)
@@ -196,6 +220,6 @@ find . -type f \( -name "*.aux" -o -name "*.log" -o -name "*.snm" -o -name "*.to
 # Stage, commit, and push updated PDF deliverables to GitHub
 cd ..
 git add .
-git commit -m "Update commands_executed documentation to reflect 100% raw manual execution"
+git commit -m "Update commands_executed documentation with explicit DDL and MapReduce job command"
 git push
 ```
